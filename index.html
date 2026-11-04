@@ -73,6 +73,8 @@ button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 .nit i{position:absolute;inset:0;transform-origin:left center;transform:scaleX(.25);background:linear-gradient(90deg,var(--violet),var(--cyan));box-shadow:0 0 12px var(--cyan)}
 .nit.full{border-color:var(--cyan);box-shadow:0 0 14px rgba(46,242,255,.7)}
 .nit.on i{background:linear-gradient(90deg,var(--magenta),#fff)}
+.nit.chg{border-color:#fff;box-shadow:0 0 16px rgba(46,242,255,.9);animation:chg .25s steps(2) infinite}
+@keyframes chg{50%{border-color:var(--cyan)}}
 .nit-l{font-size:11px;letter-spacing:.22em;color:var(--mute)}
 .hud-r{display:flex;justify-content:flex-end;align-items:flex-start;gap:10px}
 #mm{width:120px;height:120px;display:block}
@@ -232,6 +234,8 @@ input{-webkit-user-select:text;user-select:text;touch-action:manipulation}
 .lb-players{font-size:14px;gap:5px;padding:8px 10px;border:1px solid var(--line);border-radius:12px}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
 .seg.wrap{flex-wrap:wrap}
+.ai-cnt{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:12px;letter-spacing:.08em}
+#aiSeg button,#lbAI button{padding:9px 11px;min-width:2.4em}
 .seg button:disabled{cursor:default;opacity:.75}
 .seg button:disabled.sel{opacity:1}
 .tog{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:14px;margin-top:4px}
@@ -311,6 +315,7 @@ input{-webkit-user-select:text;user-select:text;touch-action:manipulation}
     <div class="setup">
       <div class="setup-h">
         <div class="seg" id="modeSeg"><button data-mode="race" data-i="modeRace">比赛</button><button data-mode="tt" data-i="modeTT">计时挑战</button><button data-mode="online" data-i="modeOnline">联机</button></div>
+        <div class="ai-cnt" id="aiWrap"><span data-i="aiCount">AI 车数</span><div class="seg" id="aiSeg"></div></div>
         <div class="seg" id="diffSeg"><button data-d="0" data-i="d0">简单</button><button data-d="1" data-i="d1">普通</button><button data-d="2" data-i="d2">困难</button></div>
       </div>
       <div id="trackSec" class="contents"><h3 data-i="track">赛道</h3>
@@ -361,7 +366,7 @@ input{-webkit-user-select:text;user-select:text;touch-action:manipulation}
       <ol id="lbPlayers" class="r-list lb-players"></ol>
       <h4 data-i="netTrack">赛道</h4><div class="seg wrap" id="lbTrack"></div>
       <h4 data-i="lbDiff">AI 难度</h4><div class="seg wrap" id="lbDiff"></div>
-      <label class="tog"><input type="checkbox" id="lbAI" checked> <span data-i="netAI">用 AI 补满 8 辆车</span></label>
+      <h4 data-i="aiCount">AI 车数</h4><div class="seg wrap" id="lbAI"></div>
       <h4 data-i="netYourCar">你的赛车</h4><div class="seg wrap" id="lbCar"></div>
       <p id="lbStatus" class="net-msg"></p>
       <div class="r-btns"><button id="bLbStart" class="btn-hero sm"><span data-i="netStart">开始比赛</span></button><button id="bLbLeave" class="btn" data-i="netLeave">离开房间</button></div>
@@ -404,11 +409,11 @@ const store={ ok:true, mem:{},
 const I18N={
 zh:{start:'开始比赛',tutTitle:'只有三个操作',tutAuto:'油门是自动的。路上的氮气瓶能补氮气。撞车、冲出赛道只会减速，不会出局。',skip:'跳过',
  tSteer:'转向',tDrift:'漂移 / 刹车',tNitro:'氮气',
- kSteer:'方向键 ← → 或 A D',kDrift:'转弯时按住空格漂移，攒氮气；直行时空格是刹车',kNitro:'按 Shift 喷氮气',
- pSteer:'按住屏幕左半边或右半边',pDrift:'转向时按住漂移键，松开有小加速',pNitro:'点一下或按住氮气键',
+ kSteer:'方向键 ← → 或 A D',kDrift:'转弯时按住空格漂移：先减速、车头内切，同时攒氮气。直行时空格是刹车',kNitro:'按 Shift 喷氮气',
+ pSteer:'按住屏幕左半边或右半边',pDrift:'转向时按住漂移键：先减速再内切，同时攒氮气，松开有小加速',pNitro:'点一下或按住氮气键',
  modeRace:'比赛',modeTT:'计时挑战',track:'赛道',car:'赛车',d0:'简单',d1:'普通',d2:'困难',go:'出发',
  stSpeed:'速度',stHandle:'操控',stNitro:'氮气',bestLap:'最佳圈',noRecord:'暂无记录',
- raceNote:'3 圈对决 7 辆 AI。你从最后一位起步。',ttNote:'独自跑 3 圈，追你在这条赛道的最佳圈幽灵车。',
+ raceNote:'3 圈对决 {n} 辆 AI，你从最后一位起步。高速追尾或开氮气撞 AI 能把它撞毁。',raceSolo:'赛道上只有你，3 圈跑出最好成绩。',aiCount:'AI 车数',takedown:'击毁 {n}！ +15% 氮气',takedowns:'击毁 {n} 辆',ttNote:'独自跑 3 圈，追你在这条赛道的最佳圈幽灵车。',
  lap:'圈',paused:'已暂停',autoPaused:'离开页面时已自动暂停。',resume:'继续',restart:'重新开始',sndOn:'音效：开',sndOff:'音效：关',musOn:'音乐：开',musOff:'音乐：关',fs:'全屏',menu:'返回菜单',
  finish:'完赛',ttDone:'计时挑战完成',total:'总用时',newRec:'新纪录',again:'再来一局',share:'分享',change:'换赛道',
  copied:'链接和成绩已复制，发给朋友吧',copyManual:'复制下面这段文字分享：',
@@ -419,11 +424,11 @@ zh:{start:'开始比赛',tutTitle:'只有三个操作',tutAuto:'油门是自动�
  storeOff:'浏览器不允许本地存储，成绩只保留到关闭页面。',bDrift:'漂移',bNitro:'氮气',lapN:'第 {n} 圈'},
 en:{start:'Start race',tutTitle:'Three controls. That is all.',tutAuto:'The throttle is automatic. Grab nitro canisters on the road. Crashes and run-offs only slow you down.',skip:'Skip',
  tSteer:'Steer',tDrift:'Drift / Brake',tNitro:'Nitro',
- kSteer:'Arrow keys ← → or A D',kDrift:'Hold Space in a corner to drift and charge nitro. On a straight, Space brakes.',kNitro:'Press Shift to fire nitro',
- pSteer:'Hold the left or right half of the screen',pDrift:'Hold Drift while steering. Let go for a small boost.',pNitro:'Tap or hold Nitro',
+ kSteer:'Arrow keys ← → or A D',kDrift:'Hold Space in a corner to drift: it scrubs speed, tucks the nose in and charges nitro. On a straight, Space brakes.',kNitro:'Press Shift to fire nitro',
+ pSteer:'Hold the left or right half of the screen',pDrift:'Hold Drift while steering: scrub speed, tuck in, charge nitro. Let go for a small boost.',pNitro:'Tap or hold Nitro',
  modeRace:'Race',modeTT:'Time trial',track:'Track',car:'Car',d0:'Easy',d1:'Normal',d2:'Hard',go:'Go',
  stSpeed:'Speed',stHandle:'Handling',stNitro:'Nitro',bestLap:'Best lap',noRecord:'No record yet',
- raceNote:'3 laps against 7 AI cars. You start at the back.',ttNote:'3 laps alone, chasing the ghost of your best lap on this track.',
+ raceNote:'3 laps against {n} AI cars. You start at the back. Ram an AI at speed or under boost to wreck it.',raceSolo:'Just you on the track. Set your best 3-lap time.',aiCount:'AI cars',takedown:'Takedown: {n}! +15% nitro',takedowns:'{n} takedowns',ttNote:'3 laps alone, chasing the ghost of your best lap on this track.',
  lap:'Lap',paused:'Paused',autoPaused:'Paused because the page lost focus.',resume:'Resume',restart:'Restart',sndOn:'Sound: on',sndOff:'Sound: off',musOn:'Music: on',musOff:'Music: off',fs:'Fullscreen',menu:'Menu',
  finish:'Finished',ttDone:'Time trial complete',total:'Total time',newRec:'New record',again:'Race again',share:'Share',change:'Change track',
  copied:'Link and time copied. Send it to a friend.',copyManual:'Copy this text to share:',
@@ -461,7 +466,8 @@ const SEG=200, RUMBLE=3, STEP=1/120; let LAPS=3;
 const CAM_H=1000, CAM_DEPTH=1/Math.tan(50*Math.PI/180), PLAYER_Z=CAM_H*CAM_DEPTH;
 const BASE=12000, ACCEL=2500, BRAKE=9000, DECEL=2600, OFF_DECEL=7000, GRAV=1100;
 /* steering authority (road widths per second at full speed), centrifugal pull, drift tuning */
-const STEER=1.85, CENT=.6, DSTEER=2.9, DBIAS=1.0, DCENT=.32, DRIFT_TOP=.975, BOOST_ACC=1.7;
+const STEER=2.15, CENT=.6, DSTEER=3.3, DBIAS=1.15, DCENT=.32, DRIFT_TOP=.95, DRIFT_SCRUB=6500, DRIFT_DECEL=4500, BOOST_ACC=1.7;
+const WRECK_T=2.5, GHOST_T=1.5;
 const CAR_W=480, CAR_LEN=380, KMH=290/BASE, FOGN=20;
 
 const CARS=[
@@ -731,18 +737,18 @@ function drawTrackShape(g,tr,size,pad,lw,col){
 
 /* ---------------- game state ---------------- */
 const G={state:'boot',paused:false,mode:store.get('mode','race'),trackI:store.get('track',0),carI:store.get('car',0),diff:store.get('diff',1),
-  track:null,cars:[],player:null,ghost:null,raceT:0,countT:0,time:0,camX:0,bgOff:0,shake:0,flash:0,nextFlash:6,finishOrder:[],resT:-1,rec:null,
+  aiN:clamp(store.get('aiN',7)|0,0,7),track:null,cars:[],player:null,ghost:null,raceT:0,countT:0,time:0,camX:0,bgOff:0,shake:0,flash:0,nextFlash:6,finishOrder:[],resT:-1,rec:null,
   attractT:0,attractI:0,manual:false,lastBeep:4,q:1};
 G.trackI=clamp(G.trackI|0,0,2); G.carI=clamp(G.carI|0,0,2); G.diff=clamp(G.diff|0,0,2); if(G.mode!=='race'&&G.mode!=='tt') G.mode='race';
-const best=store.get('best2',{});
+const best=store.get('best3',{});
 const ghosts={};
-function loadGhost(tid){ if(ghosts[tid]) return ghosts[tid]; const g=store.get('ghost2_'+tid,null); if(g&&g.d&&g.x&&g.d.length===g.x.length&&g.d.length>4&&isFinite(g.t)) ghosts[tid]=g; return ghosts[tid]||null; }
+function loadGhost(tid){ if(ghosts[tid]) return ghosts[tid]; const g=store.get('ghost3_'+tid,null); if(g&&g.d&&g.x&&g.d.length===g.x.length&&g.d.length>4&&isFinite(g.t)) ghosts[tid]=g; return ghosts[tid]||null; }
 
 function makeCar(model,o){
   return {name:o.name,st:model,model:model.model,color:o.color,frames:carFrames(model.model,o.color,o.light||model.light),dist:o.dist||0,z:0,x:o.x||0,speed:o.speed||0,steer:0,
     drift:0,driftT:0,nitro:25,nitroOn:false,nitroMin:0,boostT:0,wetT:0,slowT:0,hitT:0,obsCool:0,padCool:0,brakeT:9,prevBrake:false,lapsDone:0,lapStartT:0,laps:[],finished:false,finishT:0,
     isPlayer:!!o.player,auto:!o.player,sk:o.sk||SK.pro,tf:o.tf||1,tf0:o.tf||1,lane:o.lane||0,seed:o.seed||0,canDrift:o.canDrift!=null?o.canDrift:true,usePads:!!o.usePads,
-    hits:0,bumps:0,nitroUses:0,drifts:0,offT:0,got:new Set(),cans:0};
+    hits:0,bumps:0,nitroUses:0,drifts:0,offT:0,got:new Set(),cans:0,scrubT:0,wreckT:0,ghostT:0,boomAt:-99,wrecks:0,takedowns:0,charging:false};
 }
 function setupField(trackI, mode, diff, carI, attract){
   G.curTrackI=trackI; G.track=getTrack(trackI); const L=G.track.len, rnd=rng(1234+trackI*17+diff);
@@ -751,12 +757,13 @@ function setupField(trackI, mode, diff, carI, attract){
   const pm=CARS[carI];
   G.player=makeCar(pm,{name:t('you'),color:pm.color,player:true,sk:SK.pro});
   if(mode==='race'||attract){
-    for(let k=0;k<7;k++){ const m=CARS[k%3], row=Math.floor(k/2), col=k%2;
+    const nAI=attract?7:G.aiN;
+    for(let k=0;k<nAI;k++){ const m=CARS[k%3], row=Math.floor(k/2), col=k%2;
       const c=makeCar(m,{name:AI_NAMES[k],color:AI_COLORS[k],sk,tf:Math.min(1,sk.tf*(1+(k-3)*.009)),lane:[-.55,.55,-.2,.2,-.6,.6,0][k],seed:k*1.7+.3,
         canDrift:rnd()<sk.drift||sk.drift>=1,usePads:rnd()<sk.pads,dist:attract?k*2900+rnd()*800:-150-row*700,x:attract?0:(col?.45:-.45)});
       if(attract){ c.speed=BASE*.8; }
       G.cars.push(c); }
-    G.player.dist=attract?-900:-150-3*700; G.player.x=attract?0:.45;
+    G.player.dist=attract?-900:-150-Math.floor(nAI/2)*700; G.player.x=attract?0:(nAI%2?.45:-.45);
   } else { G.player.dist=-300; G.player.x=0; }
   if(attract){ G.player.auto=true; G.player.speed=BASE*.8; G.player.sk=SK.hard; G.player.lane=0; }
   G.cars.push(G.player);
@@ -770,7 +777,7 @@ function setupField(trackI, mode, diff, carI, attract){
 function segOf(z){ const S=G.track.segs; return S[Math.floor(z/SEG)%S.length]; }
 function fx(c,type,a){ if(c!==G.player||G.state==='title') return; FX.event(type,a); }
 function endDrift(c,award){
-  if(!c.drift) return; const tier=c.driftT>1.6?2:c.driftT>.7?1:0;
+  if(!c.drift) return; c.driftEndAt=G.time; const tier=c.driftT>1.6?2:c.driftT>.7?1:0;
   if(award&&tier){ c.boostT=Math.max(c.boostT,tier===2?1.25:.7); fx(c,'driftBoost',tier); }
   c.drift=0; c.driftT=0;
 }
@@ -780,11 +787,12 @@ function stepCar(c,inp,dt){
   c.steer=inp.steer;
   if(inp.brake){ if(!c.prevBrake) c.brakeT=0; else c.brakeT+=dt; } c.prevBrake=inp.brake;
   const off=Math.abs(c.x)>1;
-  if(inp.brake&&!inp.noDrift&&!c.drift&&c.brakeT<.3&&Math.abs(inp.steer)>.3&&c.speed>BASE*.42&&!off){ c.drift=inp.steer>0?1:-1; c.driftT=0; c.drifts++; fx(c,'driftStart'); }
-  if(c.drift&&(!inp.brake||c.speed<BASE*.3||off)) endDrift(c,!off&&c.speed>=BASE*.3);
+  const wide=Math.abs(c.x)>1.2;
+  if(inp.brake&&!inp.noDrift&&!c.drift&&Math.abs(inp.steer)>.3&&c.speed>BASE*.42&&!wide){ c.drift=inp.steer>0?1:-1; c.driftT=0; c.scrubT=.3; c.drifts++; fx(c,'driftStart'); }
+  if(c.drift&&(!inp.brake||c.speed<BASE*.3||wide)) endDrift(c,!wide&&c.speed>=BASE*.3);
   if(inp.nitro&&!c.nitroOn&&c.nitro>=8){ c.nitroOn=true; c.nitroMin=.5; c.nitroUses++; fx(c,'nitro'); }
-  if(c.nitroOn){ c.nitro-=30*dt; c.nitroMin-=dt; if(c.nitro<=0||(!inp.nitro&&c.nitroMin<=0)){ c.nitroOn=false; if(c.nitro<0) c.nitro=0; } }
-  c.boostT=Math.max(0,c.boostT-dt); c.wetT=Math.max(0,c.wetT-dt); c.slowT=Math.max(0,c.slowT-dt); c.hitT=Math.max(0,c.hitT-dt); c.obsCool=Math.max(0,c.obsCool-dt); c.padCool=Math.max(0,c.padCool-dt);
+  if(c.nitroOn){ c.charging=false; c.nitro-=30*dt; c.nitroMin-=dt; if(c.nitro<=0||(!inp.nitro&&c.nitroMin<=0)){ c.nitroOn=false; if(c.nitro<0) c.nitro=0; } }
+  c.charging=false; c.boostT=Math.max(0,c.boostT-dt); c.wetT=Math.max(0,c.wetT-dt); c.slowT=Math.max(0,c.slowT-dt); c.hitT=Math.max(0,c.hitT-dt); c.obsCool=Math.max(0,c.obsCool-dt); c.padCool=Math.max(0,c.padCool-dt);
   const boosting=c.nitroOn||c.boostT>0;
   let top=BASE*st.top*c.tf;
   if(c.nitroOn) top*=1+.2*st.np; else if(c.boostT>0) top*=1.14;
@@ -792,13 +800,14 @@ function stepCar(c,inp,dt){
   if(c.slowT>0) top*=.8;
   if(off){ top=Math.min(top,BASE*.5); c.offT+=dt; }
   if(inp.brake&&!c.drift) c.speed-=BRAKE*dt;
+  else if(c.drift&&c.scrubT>0){ c.scrubT-=dt; c.speed=Math.max(BASE*.35,c.speed-DRIFT_SCRUB*dt); }
   else if(c.speed<top){ const a=ACCEL*st.acc*(boosting?BOOST_ACC:1)*(1-.55*c.speed/top); c.speed=Math.min(top,c.speed+a*dt); }
-  else c.speed=Math.max(top,c.speed-(off?OFF_DECEL:DECEL)*dt);
+  else c.speed=Math.max(top,c.speed-(off?OFF_DECEL:c.drift?DRIFT_DECEL:DECEL)*dt);
   c.speed-=(seg.y2-seg.y1)/SEG*GRAV*dt;
   c.speed=clamp(c.speed,0,BASE*1.6);
   const s=c.speed/BASE, sp=Math.min(1,s), grip=st.grip*(c.wetT>0?.72:1), wet=c.wetT>0?1.45:1;
   let lat;
-  if(c.drift){ lat=(inp.steer*DSTEER*grip+c.drift*DBIAS)*sp-seg.curve*DCENT*s*s*wet; c.driftT+=dt; c.nitro=Math.min(100,c.nitro+dt*st.ng*(7+15*Math.min(1,Math.abs(seg.curve)/4))*sp); }
+  if(c.drift){ lat=(inp.steer*DSTEER*grip+c.drift*DBIAS)*sp-seg.curve*DCENT*s*s*wet; c.driftT+=dt; const gain=dt*st.ng*(12+22*Math.min(1,Math.abs(seg.curve)/4))*sp; c.nitro=Math.min(100,c.nitro+gain); c.charging=gain>0; }
   else lat=inp.steer*STEER*grip*sp-seg.curve*CENT*s*s*wet;
   if(c.wetT>0&&c.speed>BASE*.4) lat+=Math.sin(G.time*9+c.seed)*.35*sp;
   c.x+=lat*dt;
@@ -808,7 +817,7 @@ function stepCar(c,inp,dt){
   const hc=CAR_W/2/roadW;
   let i=Math.floor(mod(prev,Lt)/SEG)%N; const i2=Math.floor(c.z/SEG)%N;
   for(let guard=0;guard<4;guard++){ const sg=S[i];
-    for(const o of sg.obs){ if(c.obsCool<=0&&Math.abs(c.x-o.x)<(hc+o.ww/2/roadW)*.8){ c.speed*=.45; c.x+=(c.x>=o.x?1:-1)*.1; c.obsCool=.5; c.hitT=.35; c.hits++; endDrift(c,false); fx(c,'hit',1); } }
+    for(const o of sg.obs){ if(c.obsCool<=0&&Math.abs(c.x-o.x)<(hc+o.ww/2/roadW)*.8){ if(!c.human&&!c.isPlayer&&c.speed>BASE*.92&&Math.abs(c.x-o.x)<(hc+o.ww/2/roadW)*.4&&G.state!=='title'&&(!NET.on||NET.host)){ c.hits++; wreck(c,null); return; } c.speed*=.45; c.x+=(c.x>=o.x?1:-1)*.1; c.obsCool=.5; c.hitT=.35; c.hits++; endDrift(c,false); fx(c,'hit',1); } }
     for(const o of sg.surf){ if(Math.abs(c.x-o.x)<o.hw+hc*.5){
       if(o.k==='pad'){ if(c.padCool<=0){ c.boostT=Math.max(c.boostT,1.1); c.nitro=Math.min(100,c.nitro+6); c.padCool=.4; fx(c,'pad'); } }
       else if(o.k==='puddle'){ if(c.wetT<=0) fx(c,'splash'); c.wetT=.7; }
@@ -829,14 +838,30 @@ function stepCar(c,inp,dt){
     }
   }
 }
+function wreck(c,by){
+  if(c.human||c.isPlayer||c.wreckT>0||c.ghostT>0||c.finished) return;
+  c.wreckT=WRECK_T; c.boomAt=G.time; c.wrecks++; c.drift=0; c.nitroOn=false; c.boostT=0; c.speed=0;
+  if(by){ by.takedowns++; by.nitro=Math.min(100,by.nitro+15); if(by.remote&&NET.host){ const w=NET.guests.find(g=>g.id===by.netId); if(w) w.send({t:'td',n:c.name}); } }
+  if(G.state!=='title'&&G.player){ let dz=c.z-G.player.z; const Lt=G.track.len; if(dz>Lt/2) dz-=Lt; else if(dz<-Lt/2) dz+=Lt; const near=clamp(1-Math.abs(dz)/9000,0,1);
+    if(near>0){ AU.boom(.25+.75*near); G.shake=Math.max(G.shake,near*.8); }
+    if(by===G.player) centerMsg(t('takedown',{n:c.name}),1000,true); }
+}
+function respawn(c){ c.wreckT=0; c.ghostT=GHOST_T; c.speed=BASE*.35; c.x=clamp(c.lane||0,-.7,.7); c.steer=0; c.obsCool=.5; }
 function resolveCars(){
   const cs=G.cars,Lt=G.track.len,hw=CAR_W/G.track.def.roadW*.92;
   for(let i=0;i<cs.length;i++) for(let j=i+1;j<cs.length;j++){ const a=cs[i],b=cs[j];
     if(a.remote&&b.remote) continue;
+    if(a.wreckT>0||b.wreckT>0||a.ghostT>0||b.ghostT>0) continue;
     let dz=b.z-a.z; if(dz>Lt/2) dz-=Lt; else if(dz<-Lt/2) dz+=Lt;
     const adz=Math.abs(dz), dx=b.x-a.x;
     if(adz>=CAR_LEN||Math.abs(dx)>=hw) continue;
     const back=dz>0?a:b, front=dz>0?b:a;
+    // a human ramming an AI hard (or under boost) wrecks the AI; the AI respawns a moment later
+    if(!NET.on||NET.host){ const hum=a.human||a.isPlayer?a:b.human||b.isPlayer?b:null, ai=hum===a?b:a;
+      if(hum&&!(ai.human||ai.isPlayer)&&!ai.remote){ const boosting=hum.nitroOn||hum.boostT>0;
+        const rear=adz>CAR_LEN*.45&&back===hum&&hum.speed-ai.speed>(boosting?1200:2400);
+        const side=adz<=CAR_LEN*.45&&boosting&&hum.speed>ai.speed+300;
+        if(rear||side){ wreck(ai,hum); hum.speed*=.93; if(hum.isPlayer) fx(hum,'bump'); continue; } } }
     // a car simulated on another device (remote) is treated as a soft obstacle: only the local car reacts
     if(adz>CAR_LEN*.45){
       if(!back.remote){ if(back.speed>front.speed){ const vb=back.speed; back.speed=front.remote?Math.max(front.speed*.9,Math.min(vb*.6,BASE*.3)):front.speed*.9; if(!front.remote) front.speed=Math.min(front.speed+(vb-front.speed)*.25,BASE*1.3); }
@@ -848,10 +873,14 @@ function resolveCars(){
 }
 
 /* ---------------- AI driver (same physics and inputs as the player) ---------------- */
-function freeLine(obs,tx,cx,hc,roadW){
-  const hit=x=>obs.some(o=>Math.abs(x-o.x)<(hc+o.ww/2/roadW)*.8+.07);
-  if(!hit(tx)) return tx; let best=tx, bd=1e9;
-  for(let x=-.88;x<=.881;x+=.04){ if(hit(x)) continue; const d=Math.abs(x-tx)+Math.abs(x-cx)*.6; if(d<bd){ bd=d; best=x; } }
+function freeLine(obs,tx,cx,hc,roadW,c,key){
+  const hit=x=>obs.some(o=>Math.abs(x-o.x)<(hc+o.ww/2/roadW)*.8+.1);
+  if(!hit(tx)) return tx;
+  // stick to the side already chosen for this obstacle row: switching sides late is what causes crashes
+  if(c&&c.avoidKey===key&&!hit(c.avoidX)) return c.avoidX;
+  let best=tx, bd=1e9;
+  for(let x=-.88;x<=.881;x+=.04){ if(hit(x)) continue; const d=Math.abs(x-tx)*.5+Math.abs(x-cx)*1.5; if(d<bd){ bd=d; best=x; } }
+  if(c){ c.avoidKey=key; c.avoidX=best; }
   return best;
 }
 function aiControl(c){
@@ -870,7 +899,7 @@ function aiControl(c){
     const d=Math.max(0,k*SEG-zin), vr=Math.sqrt(vAllow*vAllow+2*BRAKE*.55*d);
     if(vr<target) target=vr;
   }
-  let tx=c.lane+clamp(curveSum*.004,-.45,.45)+Math.sin(G.time*.7+c.seed)*sk.noise;
+  let tx=c.lane+clamp(curveSum*.004,-.45,.45);
   const hc=CAR_W/2/roadW;
   let wallK=-1, wall=null;
   for(let k=1;k<64&&wallK<0;k++){ const sg=S[(i0+k)%N]; if(sg.obs.length){ wallK=k; wall=sg.obs; } }
@@ -879,12 +908,14 @@ function aiControl(c){
       for(const o of sg.surf){ if(o.k==='pad'){ if(c.usePads&&k<28) tx=o.x; } else { const clr=o.hw+hc*.5+.05; if(Math.abs(tx-o.x)<clr){ const l=o.x-clr, r=o.x+clr; tx=(l<-.9)?r:(r>.9)?l:(Math.abs(l-c.x)<Math.abs(r-c.x)?l:r); } } }
       if(c.usePads&&k<36) for(const it of sg.items) if(!c.got.has(it.id)) tx=it.x;
     } }
-  if(wall) tx=freeLine(wall,tx,c.x,hc,roadW);
-  for(const o of G.cars){ if(o===c) continue; let dz=o.z-c.z; if(dz<-Lt/2) dz+=Lt; else if(dz>Lt/2) dz-=Lt;
+  const wkey=wall?(i0+wallK)%N:-1;
+  if(wall) tx=freeLine(wall,tx,c.x,hc,roadW,c,wkey);
+  if(!(wall&&wallK<50)) tx+=Math.sin(G.time*.7+c.seed)*sk.noise;
+  for(const o of G.cars){ if(o===c||o.wreckT>0||o.ghostT>0) continue; let dz=o.z-c.z; if(dz<-Lt/2) dz+=Lt; else if(dz>Lt/2) dz-=Lt;
     if(dz>0&&dz<1600&&Math.abs(o.x-c.x)<.34&&o.speed<v+300){
       const side=o.x>.15?-1:o.x<-.15?1:(c.x>=o.x?1:-1); tx=o.x+side*.45;
       if(dz<700&&Math.abs(o.x-c.x)<.22) target=Math.min(target,Math.max(o.speed*.98,BASE*.25)); } }
-  if(wall&&wallK<40) tx=freeLine(wall,tx,c.x,hc,roadW);
+  if(wall&&wallK<60) tx=freeLine(wall,tx,c.x,hc,roadW,c,wkey);
   tx=clamp(tx,-.88,.88);
   const seg0=S[i0], wet=c.wetT>0?1.45:1, Kx=wall&&wallK<50?5:3;
   let steer;
@@ -892,11 +923,13 @@ function aiControl(c){
   else { const A=STEER*g*Math.max(sp,.05); steer=(Kx*(tx-c.x)+seg0.curve*CENT*s*s*wet)/A; }
   steer=clamp(steer,-1,1);
   let brake=false, noDrift=true;
-  const inCurve=Math.abs(seg0.curve)>=2.4;
-  if(canDrift&&v>BASE*.5&&(wantDrift||(c.drift&&inCurve))){ brake=true; noDrift=false;
+  let curveNear=Math.abs(seg0.curve)>=1.5; for(let k=1;k<8&&!curveNear;k++) if(Math.abs(S[(i0+k)%N].curve)>=1.8) curveNear=true;
+  const keep=c.drift&&(curveNear||c.driftT<.5), mayStart=!c.drift&&wantDrift&&G.time-(c.driftEndAt||-9)>.45;
+  if(canDrift&&v>BASE*.5&&(keep||mayStart)){ brake=true; noDrift=false;
     if(!c.drift){ const d=driftDir||Math.sign(seg0.curve)||1; if(steer*d<.4) steer=d*.45; } }
   else if(v>target+250){ brake=true; }
-  const nitro=c.nitroOn ? straight : (straight&&!c.drift&&c.nitro>sk.nitroAt&&v>BASE*.6);
+  const clearAhead=!(wall&&wallK<70);
+  const nitro=c.nitroOn ? straight&&clearAhead : (straight&&clearAhead&&!c.drift&&c.nitro>sk.nitroAt&&v>BASE*.6);
   // mild pace balancing toward the player, never above the car's own spec
   if(G.mode==='race'&&G.state==='race'&&G.player&&!c.isPlayer){ const gap=c.dist-G.player.dist; const want=c.tf0*(gap>3000?.965:gap<-3000?1.03:1); c.tf=Math.min(1,lerp(c.tf,want,.002)); }
   return {steer,brake,nitro,noDrift};
@@ -918,8 +951,8 @@ function onPlayerLap(lt,li){
   const p=G.player, tid=G.track.def.id; const b=best[tid]||(best[tid]={});
   const rec=G.rec; let isBest=false;
   if(rec&&rec.d.length>10&&(!b.lap||lt<b.lap)){ isBest=!!b.lap; b.lap=lt; G.newLapRec=true;
-    const gh={t:lt,car:G.carI,dt:.05,d:rec.d.slice(),x:rec.x.slice()}; ghosts[tid]=gh; store.set('ghost2_'+tid,gh); store.set('best2',best); }
-  else if(!b.lap||lt<b.lap){ b.lap=lt; store.set('best2',best); }
+    const gh={t:lt,car:G.carI,dt:.05,d:rec.d.slice(),x:rec.x.slice()}; ghosts[tid]=gh; store.set('ghost3_'+tid,gh); store.set('best3',best); }
+  else if(!b.lap||lt<b.lap){ b.lap=lt; store.set('best3',best); }
   G.rec={d:[],x:[],lap:li};
   if(li<LAPS){ FX.event('lap',li); if(isBest) setTimeout(()=>centerMsg(t('newBest'),1600,true),900); if(li===LAPS-1) centerMsg(t('lastLap'),1800,true); }
 }
@@ -932,7 +965,7 @@ function onPlayerFinish(){
   let rec=false;
   if(G.mode==='race'){ const k='race'+G.diff; if(!b[k]||total<b[k]){ rec=!!b[k]||true; b[k]=total; } }
   else if(G.mode==='tt'){ if(!b.tt||total<b.tt){ rec=true; b.tt=total; } }
-  store.set('best2',best);
+  store.set('best3',best);
   G.result={pos,total,best:bl,laps:p.laps.slice(),rec:rec||G.newLapRec,stand:ord.map(c=>({name:c.name,me:c===p,t:c.finished?c.finishT:null})),mode:G.mode};
   FX.event('finish',pos);
 }
@@ -948,7 +981,10 @@ function update(dt){
   }
   if(G.state==='race'||G.state==='finished'||G.state==='title'){
     G.raceT+=dt;
-    for(const c of G.cars){ if(c.remote) remoteStep(c,dt); else stepCar(c,c.auto?aiControl(c):playerInput(dt),dt); }
+    for(const c of G.cars){ if(c.ghostT>0) c.ghostT=Math.max(0,c.ghostT-dt);
+      if(c.remote){ remoteStep(c,dt); continue; }
+      if(c.wreckT>0){ c.wreckT-=dt; c.speed=0; if(c.wreckT<=0) respawn(c); continue; }
+      stepCar(c,c.auto?aiControl(c):playerInput(dt),dt); }
     resolveCars();
     const p=G.player, ps=segOf(p.z);
     G.bgOff+=ps.curve*p.speed*dt/SEG*.0016;
@@ -1042,6 +1078,9 @@ function render(){
     if(bl.length){ bl.sort((a,b)=>b.z-a.z);
       for(const c of bl){ const pct=(c.z%SEG)/SEG, s2=lerp(p1.scale,seg.p2.scale,pct), X=lerp(p1.sx,seg.p2.sx,pct)+s2*c.x*roadW*ff, Y=lerp(p1.sy,seg.p2.sy,pct);
         const w=CAR_W*s2*ff, img=c.frames[c.steer<-.3?0:c.steer>.3?2:1];
+        const since=G.time-c.boomAt;
+        if(since<WRECK_T&&c.wreckT>0){ if(Y<seg.clip) drawWreck(X,Y,w,since,c.seed); continue; }
+        if(c.ghostT>0){ ctx.globalAlpha=(Math.floor(G.time*12)%2)?.25:.6; drawSprite(img,X,Y,w,w*img.height/img.width,-.5,-1,seg.clip); ctx.globalAlpha=1; continue; }
         if(c.ghost){ ctx.globalAlpha=.45; drawSprite(img,X,Y,w,w*img.height/img.width,-.5,-1,seg.clip); ctx.globalAlpha=1; }
         else { drawSprite(img,X,Y,w,w*img.height/img.width,-.5,-1,seg.clip); if((c.nitroOn||c.boostT>0)&&w>12&&Y<seg.clip) flame(X,Y-w*.22,w,.7);
           if(c.human&&w>14){ const ty=Y-w*img.height/img.width-5; if(ty<seg.clip){ ctx.font='700 '+Math.round(clamp(w*.15,10,16))+'px system-ui,sans-serif'; ctx.textAlign='center'; ctx.lineWidth=3; ctx.strokeStyle='rgba(5,2,20,.8)'; const nm=c.away?c.name+t('awayTag'):c.name; ctx.strokeText(nm,X,ty); ctx.fillStyle=c.color; ctx.fillText(nm,X,ty); } } } } }
@@ -1049,6 +1088,18 @@ function render(){
   drawPlayer(P,roadW);
   FX.draw(W,H);
   ctx.setTransform(1,0,0,1,0,0);
+}
+function drawWreck(x,y,w,t,seed){
+  // hull: dark scorched silhouette that sinks away
+  ctx.globalAlpha=clamp(1-t/WRECK_T,0,1)*.85; ctx.fillStyle='#120a1a'; ctx.beginPath(); ctx.ellipse(x,y-w*.12,w*.42,w*.12,0,0,7); ctx.fill(); ctx.globalAlpha=1;
+  if(t<.7){ const k=t/.7, r=w*(.25+k*.9);
+    const g=ctx.createRadialGradient(x,y-w*.25,1,x,y-w*.25,r); g.addColorStop(0,'rgba(255,255,230,'+(1-k)+')'); g.addColorStop(.35,'rgba(255,160,60,'+(.9*(1-k))+')'); g.addColorStop(.7,'rgba(255,63,180,'+(.6*(1-k))+')'); g.addColorStop(1,'rgba(155,92,255,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y-w*.25,r,0,7); ctx.fill();
+    ctx.strokeStyle='rgba(46,242,255,'+(1-k)+')'; ctx.lineWidth=Math.max(1,w*.03); ctx.beginPath(); ctx.ellipse(x,y-w*.05,r*1.2,r*.35,0,0,7); ctx.stroke();
+    const R2=rng((seed*1000|0)+7); ctx.fillStyle='#ffd27a';
+    for(let i=0;i<12;i++){ const a=R2()*Math.PI*2, v=.5+R2(), d=w*(.2+k*1.1*v); ctx.fillRect(x+Math.cos(a)*d,y-w*.25+Math.sin(a)*d*.6+k*k*w*.4,Math.max(1,w*.035),Math.max(1,w*.035)); } }
+  // smoke column
+  for(let i=0;i<4;i++){ const u=(t*.6+i*.25)%1, a=(1-u)*.35*clamp((WRECK_T-t)/.6,0,1); ctx.fillStyle='rgba(70,60,95,'+a+')'; ctx.beginPath(); ctx.arc(x+Math.sin(i*2.1+t)*w*.08,y-w*(.25+u*.9),w*(.12+u*.22),0,7); ctx.fill(); }
 }
 function flame(x,y,w,a){
   const len=w*(.22+Math.random()*.18); ctx.globalAlpha=a; ctx.fillStyle='#ff3fb4';
@@ -1180,6 +1231,7 @@ const AU={ctx:null,on:store.get('snd',true)!==false,mus:store.get('mus',true)!==
   sand(){ this.nz(.3,'lowpass',500,.25); },
   lap(){ const c=this.ctx; if(!c) return; [660,880,1320].forEach((f,i)=>this.tone(f,.18,'triangle',.14,null,null,c.currentTime+i*.09)); },
   finish(pos){ const c=this.ctx; if(!c) return; const seq=pos<=3?[523,659,784,1047,1319]:[523,587,659,784]; seq.forEach((f,i)=>this.tone(f,.3,'square',.1,null,null,c.currentTime+i*.12)); },
+  boom(v){ if(!this.ctx) return; this.nz(.7,'lowpass',700,.6*v); this.tone(90,.5,'sine',.55*v,30); this.nz(.25,'bandpass',2400,.18*v,null,null,1.2); },
   thunder(){ if(!this.ctx||G.paused) return; this.nz(2.2,'lowpass',160,.5); },
   /* music: small synthwave loop per track */
   SONGS:[{bpm:118,ch:[57,53,48,55],q:[0,3,7,12]},{bpm:100,ch:[53,52,50,48],q:[0,4,7,11]},{bpm:124,ch:[50,46,43,45],q:[0,3,7,10]}],
@@ -1255,12 +1307,14 @@ function buildSetup(){
   document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('sel',b.dataset.mode===G.mode));
   document.querySelectorAll('#diffSeg button').forEach(b=>b.classList.toggle('sel',+b.dataset.d===G.diff));
   const onl=G.mode==='online';
-  $('diffSeg').hidden=G.mode!=='race'; $('trackSec').hidden=onl; $('goRow').hidden=onl; $('onlinePanel').hidden=!onl;
+  $('diffSeg').hidden=G.mode!=='race'; $('aiWrap').hidden=G.mode!=='race'; $('trackSec').hidden=onl;
+  $('aiSeg').innerHTML=[0,1,2,3,4,5,6,7].map(n=>'<button type="button" data-n="'+n+'" class="'+(n===G.aiN?'sel':'')+'">'+n+'</button>').join(''); $('goRow').hidden=onl; $('onlinePanel').hidden=!onl;
   if(onl){ const blocked=framedInClaude(); $('bHost').disabled=blocked; $('bJoin').disabled=blocked; $('joinCode').disabled=blocked;
     $('netNote').textContent=blocked?t('netArtifact')+' '+PAGES_URL:t('netPrivacy'); }
-  let note=t(G.mode==='race'?'raceNote':'ttNote'); if(!store.ok) note+=' '+t('storeOff'); $('setupNote').textContent=note;
+  let note=G.mode==='race'?(G.aiN?t('raceNote',{n:G.aiN}):t('raceSolo')):t('ttNote'); if(!store.ok) note+=' '+t('storeOff'); $('setupNote').textContent=note;
 }
 document.querySelectorAll('#modeSeg button').forEach(b=>b.addEventListener('click',()=>{ G.mode=b.dataset.mode; store.set('mode',G.mode); buildSetup(); }));
+$('aiSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; G.aiN=+b.dataset.n; store.set('aiN',G.aiN); buildSetup(); });
 document.querySelectorAll('#diffSeg button').forEach(b=>b.addEventListener('click',()=>{ G.diff=+b.dataset.d; store.set('diff',G.diff); buildSetup(); }));
 function showSetup(){ G.paused=false; G.netMenu=false; if(G.state!=='title') attract(G.trackI); else if(G.trackI!==G.attractI) attract(G.trackI);
   if(pendingRoom){ G.mode='online'; }
@@ -1324,7 +1378,7 @@ function showResult(){
   const onl=r.mode==='online';
   $('rPos').innerHTML=r.mode!=='tt'?(lang==='zh'?r.pos+'<small> / '+G.cars.length+'</small>':ordinal(r.pos)):'⏱';
   $('rLabel').textContent=t(r.mode!=='tt'?'finish':'ttDone');
-  $('rMeta').textContent=[L(G.track.def.name),L(CARS[G.carI].name),r.mode==='race'?t('d'+G.diff):r.mode==='tt'?t('modeTT'):t('modeOnlineMeta')].join(' · ');
+  $('rMeta').textContent=[L(G.track.def.name),L(CARS[G.carI].name),r.mode==='race'?t('d'+G.diff):r.mode==='tt'?t('modeTT'):t('modeOnlineMeta')].concat(G.player&&G.player.takedowns?[t('takedowns',{n:G.player.takedowns})]:[]).join(' · ');
   $('bAgain').hidden=onl; $('bBackRoom').hidden=!(onl&&NET.on); $('bChange').hidden=onl&&NET.on;
   $('rTotal').textContent=fmt(r.total); $('rBest').textContent=fmt(r.best);
   $('rBadge').hidden=!r.rec; $('rBadge').textContent=t('newRec');
@@ -1361,15 +1415,17 @@ function genCode(){ const a=new Uint32Array(5); try{ crypto.getRandomValues(a); 
 function framedInClaude(){ let f=false; try{ f=window.top!==window.self; }catch(e){ f=true; } return f&&/claude|anthropic/i.test(location.hostname+' '+document.referrer); }
 function pName(id){ return t('pN',{n:id}); }
 function carByNet(id){ return G.cars.find(c=>c.netId===id); }
-function encState(c){ return [c.netId,Math.round(c.dist),Math.round(c.x*1000),Math.round(c.speed),Math.round(c.steer*100),(c.drift>0?1:c.drift<0?2:0)|(c.nitroOn?4:0)|(c.boostT>0?8:0),c.lapsDone,c.finished?Math.round(c.finishT*1000)/1000:0]; }
+function encState(c){ return [c.netId,Math.round(c.dist),Math.round(c.x*1000),Math.round(c.speed),Math.round(c.steer*100),(c.drift>0?1:c.drift<0?2:0)|(c.nitroOn?4:0)|(c.boostT>0?8:0)|(c.wreckT>0?16:0)|(c.ghostT>0?32:0),c.lapsDone,c.finished?Math.round(c.finishT*1000)/1000:0]; }
 function applyState(c,e,ow){
   ow=clamp(ow||0,0,.5); c.speed=+e[3]||0; c.tDist=(+e[1]||0)+c.speed*ow; c.tX=clamp((+e[2]||0)/1000,-2.4,2.4); c.steer=clamp((+e[4]||0)/100,-1,1);
-  const f=e[5]|0; c.drift=f&1?1:f&2?-1:0; c.nitroOn=!!(f&4); c.boostT=f&8?.06:0; c.lapsDone=Math.max(c.lapsDone,e[6]|0);
+  const f=e[5]|0; c.drift=f&1?1:f&2?-1:0; c.nitroOn=!!(f&4); c.boostT=f&8?.06:0;
+  if(f&16){ if(!(c.wreckT>0)){ c.wreckT=WRECK_T; c.boomAt=G.time; if(G.player){ let dz=c.z-G.player.z; const Lt=G.track.len; if(dz>Lt/2) dz-=Lt; else if(dz<-Lt/2) dz+=Lt; const near=clamp(1-Math.abs(dz)/9000,0,1); if(near>0){ AU.boom(.25+.75*near); G.shake=Math.max(G.shake,near*.8); } } } } else c.wreckT=0;
+  c.ghostT=f&32?.2:0; c.lapsDone=Math.max(c.lapsDone,e[6]|0);
   if(e[7]>0&&!c.finished){ c.finished=true; c.finishT=+e[7]; G.finishOrder.push(c); }
   c.rxAt=performance.now(); if(!c.synced){ c.synced=true; c.dist=c.tDist; c.x=c.tX; }
 }
 function remoteStep(c,dt){
-  const Lt=G.track.len; if(performance.now()-(c.rxAt||0)>1500) c.speed*=.985;
+  const Lt=G.track.len; if(c.wreckT>0){ c.speed=0; c.tDist=c.dist; return; } if(performance.now()-(c.rxAt||0)>1500) c.speed*=.985;
   c.tDist+=c.speed*dt; c.dist+=c.speed*dt; const err=c.tDist-c.dist;
   if(Math.abs(err)>4000) c.dist=c.tDist; else c.dist+=err*Math.min(1,dt*5);
   c.x+=(c.tX-c.x)*Math.min(1,dt*8); c.z=mod(c.dist,Lt);
@@ -1442,13 +1498,13 @@ function localTransport(){
   };
 }
 function busyUI(b){ $('bHost').disabled=b||framedInClaude(); $('bJoin').disabled=b||framedInClaude(); }
-const NET={on:false,host:false,code:'',tr:null,myId:0,players:[],guests:[],hostConn:null,cfg:{track:0,diff:1,ai:true},inRace:false,lastTx:0,lastPing:0,joinTmo:0,
+const NET={on:false,host:false,code:'',tr:null,myId:0,players:[],guests:[],hostConn:null,cfg:{track:0,diff:1,aiN:7},inRace:false,lastTx:0,lastPing:0,joinTmo:0,
   tok:'',reconn:null,reconnTimer:0,lastGapT:-1e9,leaving:false,
   makeTr(){ return qs.get('net')==='local'?localTransport():peerTransport(); },
   msg(k,v){ const txt=k?t(k,v):''; $('netMsg').textContent=txt; if(!$('scrLobby').hidden) $('lbStatus').textContent=txt; },
   create(tries){ tries=tries||0; if(this.tr) this.reset(); AU.init(); this.code=genCode(); this.tr=this.makeTr(); this.msg('netConnecting'); busyUI(true);
     this.tr.host(this.code,{
-      open:()=>{ busyUI(false); this.on=true; this.host=true; this.myId=1; this.players=[{id:1,car:G.carI}]; this.cfg={track:G.trackI,diff:G.diff,ai:true}; this.inRace=false; this.msg(''); showLobby(); },
+      open:()=>{ busyUI(false); this.on=true; this.host=true; this.myId=1; this.players=[{id:1,car:G.carI}]; this.cfg={track:G.trackI,diff:G.diff,aiN:G.aiN}; this.inRace=false; this.msg(''); showLobby(); },
       conn:w=>{ w.onmsg=m=>this.hostRx(w,m); w.onclose=()=>this.dropGuest(w); },
       error:e=>{ if(!this.on&&e==='unavailable-id'&&tries<3){ this.create(tries+1); return; } if(this.on){ if(e==='network'||e==='server-error'||e==='socket-error') toast(t('netErrServer')); return; } this.fail(e); } }); },
   join(code){ code=(code||'').toUpperCase().replace(/[^A-Z0-9]/g,''); if(code.length!==5){ this.msg('netRoomBad'); return; }
@@ -1503,7 +1559,7 @@ const NET={on:false,host:false,code:'',tr:null,myId:0,players:[],guests:[],hostC
     toast(t('netRejoined',{n:pName(p.id)})); this.lobbyCast(); },
   lobbyCast(){ const m={t:'lobby',code:this.code,cfg:this.cfg,players:this.players.map(p=>({id:p.id,car:p.car,away:!!p.away})),inRace:this.inRace}; this.guests.forEach(w=>w.send(m)); renderLobby(); },
   startRace(){ if(!this.host) return; this.players=this.players.filter(p=>!p.away||p.id===this.myId); const humans=this.players.map(p=>({id:p.id,car:p.car}));
-    const m={t:'go',track:this.cfg.track,diff:this.cfg.diff,ai:this.cfg.ai?8-humans.length:0,humans,seed:Math.floor(Math.random()*1e6)};
+    const m={t:'go',track:this.cfg.track,diff:this.cfg.diff,ai:clamp(this.cfg.aiN|0,0,8-humans.length),humans,seed:Math.floor(Math.random()*1e6)};
     this.inRace=true; this.guests.forEach(w=>w.send(m)); startOnline(m,this.guests.reduce((a,w)=>Math.max(a,w.rtt/2),0)); this.lobbyCast(); },
   backToLobby(){ if(this.host){ if(G.cars.some(c=>c.human&&!c.finished&&!c.away)){ toast(t('netWaitFinish')); return; } this.inRace=false; this.players=this.players.filter(p=>!p.away); this.lobbyCast(); } showLobby(); },
   guestRx(m){ if(!m||!m.t) return; const w=this.hostConn;
@@ -1517,6 +1573,7 @@ const NET={on:false,host:false,code:'',tr:null,myId:0,players:[],guests:[],hostC
       case 'go': if(this.on) startOnline(m,0); break;
       case 'w': if(G.mode==='online'&&Array.isArray(m.c)) for(const e of m.c){ if(!Array.isArray(e)||e[0]===this.myId) continue; const c=carByNet(e[0]); if(!c) continue;
           if(c.stale||c.wasRemote){ delete c.wasRemote; resumeRemote(c,false); } if(c.remote) applyState(c,e,w?w.rtt/2:0); } break;
+      case 'td': if(G.player&&G.mode==='online'){ G.player.takedowns++; G.player.nitro=Math.min(100,G.player.nitro+15); centerMsg(t('takedown',{n:m.n}),1000,true); } break;
       case 'adopt': { const gapped=performance.now()-this.lastGapT<30000; const ok=gapped&&adoptYou(m.you); if(w) w.send({t:ok?'adopted':'noadopt'}); break; }
       case 'pi': w&&w.send({t:'po',a:m.a}); break;
       case 'po': if(w) w.rtt=clamp((performance.now()-m.a)/1000,0,2); break;
@@ -1578,14 +1635,15 @@ function renderLobby(){
   const seg=(arr,sel,dis)=>arr.map((txt,i)=>'<button type="button" data-v="'+i+'" class="'+(sel===i?'sel':'')+'"'+(dis?' disabled':'')+'>'+txt+'</button>').join('');
   $('lbTrack').innerHTML=seg(TRACKS.map(d=>L(d.name)),N.cfg.track,!h);
   $('lbDiff').innerHTML=seg([t('d0'),t('d1'),t('d2')],N.cfg.diff,!h);
-  $('lbAI').checked=!!N.cfg.ai; $('lbAI').disabled=!h;
+  const maxAI=Math.max(0,8-N.players.length), curAI=Math.min(N.cfg.aiN|0,maxAI);
+  $('lbAI').innerHTML=seg(Array.from({length:maxAI+1},(_,i)=>String(i)),curAI,!h);
   $('lbCar').innerHTML=seg(CARS.map(c=>L(c.name)),me?me.car:G.carI,false);
   $('bLbStart').hidden=!h;
   $('lbStatus').textContent=h?(N.players.length<2?t('netAlone'):''):(N.inRace?t('netInRace'):t('netWait'));
 }
 $('lbTrack').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||!NET.host) return; NET.cfg.track=+b.dataset.v; G.trackI=NET.cfg.track; NET.lobbyCast(); attract(NET.cfg.track); });
 $('lbDiff').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||!NET.host) return; NET.cfg.diff=+b.dataset.v; NET.lobbyCast(); });
-$('lbAI').addEventListener('change',()=>{ if(!NET.host) return; NET.cfg.ai=$('lbAI').checked; NET.lobbyCast(); });
+$('lbAI').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||!NET.host) return; NET.cfg.aiN=+b.dataset.v; G.aiN=NET.cfg.aiN; store.set('aiN',G.aiN); NET.lobbyCast(); });
 $('lbCar').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const v=+b.dataset.v; G.carI=v; store.set('car',v); const me=NET.players.find(p=>p.id===NET.myId); if(me) me.car=v;
   if(NET.host) NET.lobbyCast(); else { if(NET.hostConn) NET.hostConn.send({t:'car',car:v}); renderLobby(); } });
 $('bLbStart').addEventListener('click',()=>NET.startRace());
@@ -1620,7 +1678,7 @@ setInterval(()=>{ const now=performance.now(); if(!document.hidden){ bgLast=now;
 let hudLast=0;
 function hudTick(force){
   const now=performance.now(); const P=G.player; if(!P||$('hud').hidden) return;
-  const nit=$('hNit'); nit.style.transform='scaleX('+(P.nitro/100).toFixed(3)+')'; $('hNitWrap').classList.toggle('full',P.nitro>=99); $('hNitWrap').classList.toggle('on',P.nitroOn);
+  const nit=$('hNit'); nit.style.transform='scaleX('+(P.nitro/100).toFixed(3)+')'; $('hNitWrap').classList.toggle('full',P.nitro>=99); $('hNitWrap').classList.toggle('on',P.nitroOn); $('hNitWrap').classList.toggle('chg',!!P.charging&&P.nitro<100);
   if(!force&&now-hudLast<100) return; hudLast=now;
   const ord=standings(), pos=ord.indexOf(P)+1;
   $('hPos').textContent=pos; $('hLap').textContent=Math.min(LAPS,P.lapsDone+1)+'/'+LAPS;
