@@ -827,15 +827,15 @@ function placeObstacles(tr){
       if(u.n>=30&&r()<.45){ const i=u.a+Math.floor(u.n*.62); if(free(i-2,i+2)) can(i)(-dir*.62); }
     }
     else if((u.k==='S'||(th==='coast'&&u.k==='M'))&&u.n>=60){
-      const gates=Math.min(4,Math.floor((u.n-36)/gap));
+      const gapU=u.k==='M'?Math.round(gap*1.2):gap; const gates=Math.min(4,Math.floor((u.n-36)/gapU));
       if(gates>=2&&r()<.8){ // slalom: every gate leaves exactly one lane open, alternating sides
         let open=r()<.5?0:def.lanes-1; const g0=u.a+18;
-        for(let gi=0;gi<gates;gi++){ const i=g0+gi*gap; if(!free(i-2,i+2)) continue;
+        for(let gi=0;gi<gates;gi++){ const i=g0+gi*gapU; if(!free(i-2,i+2)) continue;
           if(def.lanes===2) solid(i,lanesX[1-open]*.98);
           else for(let L=0;L<def.lanes;L++) if(L!==open) S[mod(i,N)].obs.push({k:solidK,x:lanesX[L]*.95,ww:WW});
           mark(i-6,i+6);
           open=open===0?def.lanes-1:0; }
-        const after=g0+gates*gap-gap/2|0; if(after<u.a+u.n-6&&free(after-2,after+2)) can(after)(0);
+        const after=g0+gates*gapU-gapU/2|0; if(after<u.a+u.n-6&&free(after-2,after+2)) can(after)(0);
       } else { const mid=u.a+(u.n>>1); if(free(mid-3,mid+3)) can(mid)(0); // canister in the middle of the road
         const sx=u.a+Math.floor(u.n*.25); if(u.n>=90&&free(sx-3,sx+8)) surf(sx,lanesX[Math.floor(r()*lanesX.length)]*.9,(boostK?2:surfK==='ice'?8:6)); }
     }
