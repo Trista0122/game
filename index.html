@@ -418,7 +418,7 @@ zh:{start:'开始比赛',tutTitle:'只有三个操作',tutAuto:'油门是自动�
  pSteer:'按住屏幕左半边或右半边',pDrift:'转向时按住漂移键：先减速再内切，同时攒氮气，松开有小加速',pNitro:'点一下或按住氮气键',
  modeRace:'比赛',modeTT:'计时挑战',track:'赛道',car:'赛车',d0:'简单',d1:'普通',d2:'困难',go:'出发',
  stSpeed:'速度',stHandle:'操控',stNitro:'氮气',bestLap:'最佳圈',noRecord:'暂无记录',
- raceNote:'3 圈对决 {n} 辆 AI，你从最后一位起步。高速追尾或开氮气撞 AI 能把它撞毁。',raceSolo:'赛道上只有你，3 圈跑出最好成绩。',aiCount:'AI 车数',takedown:'击毁 {n}！ +15% 氮气',airtime:'腾空 {s} 秒  +N₂O',takedowns:'击毁 {n} 辆',ttNote:'独自跑 3 圈，追你在这条赛道的最佳圈幽灵车。',
+ raceNote:'3 圈对决 {n} 辆 AI，你从最后一位起步。高速追尾或开氮气撞 AI 能把它撞毁。',raceSolo:'赛道上只有你，3 圈跑出最好成绩。',aiCount:'AI 车数',takedown:'击毁 {n}！ +15% 氮气',rampJump:'飞跃！ +20% 氮气',airtime:'腾空 {s} 秒  +N₂O',takedowns:'击毁 {n} 辆',ttNote:'独自跑 3 圈，追你在这条赛道的最佳圈幽灵车。',
  lap:'圈',paused:'已暂停',autoPaused:'离开页面时已自动暂停。',resume:'继续',restart:'重新开始',sndOn:'音效：开',sndOff:'音效：关',musOn:'音乐：开',musOff:'音乐：关',fs:'全屏',menu:'返回菜单',
  finish:'完赛',ttDone:'计时挑战完成',total:'总用时',newRec:'新纪录',again:'再来一局',share:'分享',change:'换赛道',
  copied:'链接和成绩已复制，发给朋友吧',copyManual:'复制下面这段文字分享：',
@@ -433,7 +433,7 @@ en:{start:'Start race',tutTitle:'Three controls. That is all.',tutAuto:'The thro
  pSteer:'Hold the left or right half of the screen',pDrift:'Hold Drift while steering: scrub speed, tuck in, charge nitro. Let go for a small boost.',pNitro:'Tap or hold Nitro',
  modeRace:'Race',modeTT:'Time trial',track:'Track',car:'Car',d0:'Easy',d1:'Normal',d2:'Hard',go:'Go',
  stSpeed:'Speed',stHandle:'Handling',stNitro:'Nitro',bestLap:'Best lap',noRecord:'No record yet',
- raceNote:'3 laps against {n} AI cars. You start at the back. Ram an AI at speed or under boost to wreck it.',raceSolo:'Just you on the track. Set your best 3-lap time.',aiCount:'AI cars',takedown:'Takedown: {n}! +15% nitro',airtime:'Airtime {s}s  +N₂O',takedowns:'{n} takedowns',ttNote:'3 laps alone, chasing the ghost of your best lap on this track.',
+ raceNote:'3 laps against {n} AI cars. You start at the back. Ram an AI at speed or under boost to wreck it.',raceSolo:'Just you on the track. Set your best 3-lap time.',aiCount:'AI cars',takedown:'Takedown: {n}! +15% nitro',rampJump:'Big air! +20% nitro',airtime:'Airtime {s}s  +N₂O',takedowns:'{n} takedowns',ttNote:'3 laps alone, chasing the ghost of your best lap on this track.',
  lap:'Lap',paused:'Paused',autoPaused:'Paused because the page lost focus.',resume:'Resume',restart:'Restart',sndOn:'Sound: on',sndOff:'Sound: off',musOn:'Music: on',musOff:'Music: off',fs:'Fullscreen',menu:'Menu',
  finish:'Finished',ttDone:'Time trial complete',total:'Total time',newRec:'New record',again:'Race again',share:'Share',change:'Change track',
  copied:'Link and time copied. Send it to a friend.',copyManual:'Copy this text to share:',
@@ -496,24 +496,24 @@ const SK={
 const DIFFS=['easy','normal','hard'];
 
 const TRACKS=[
- {id:'city', theme:'city', name:{zh:'霓虹城市',en:'Neon City'}, desc:{zh:'360° 螺旋大转盘、分叉路、路障阵和加速带',en:'A 360° spiral carousel, a fork, barrier slaloms and boost pads'},
-  roadW:2100, lanes:3, scale:1.4, seed:11,
+ {id:'city', theme:'city', name:{zh:'霓虹城市',en:'Neon City'}, desc:{zh:'360° 螺旋大转盘、分叉路、路障阵、可选跳台',en:'A 360° spiral carousel, a fork, barrier slaloms, optional jumps'},
+  roadW:2100, lanes:3, scale:1.4, seed:11, ramps:2,
   secs:[[0,40,0,0,0],[25,70,25,-2,0],[0,40,0,0,15],[15,30,15,-3,0],[15,30,15,3.5,0],[0,90,0,0,-15],[30,100,30,-3,0],[25,25,25,0,30],[25,25,25,0,-30],
         [20,50,20,-4,0],[12,22,12,5,0],[12,22,12,-5,0],[12,22,12,5,0],[0,190,0,0,0],[20,50,20,6,0],[0,40,0,0,10],{loop:[40,290,40,3.2,30]},[20,40,20,-3,-20],{fork:150,c:.6,h:0},[25,60,25,4,0],[0,60,0,0,0]]},
- {id:'coast', theme:'coast', name:{zh:'海岸落日',en:'Sunset Coast'}, desc:{zh:'海滨长直道、绕岛分叉、弯心路锥',en:'A long beach straight, a fork around an island, cones at the apex'},
-  roadW:2400, lanes:4, scale:1.25, seed:23,
+ {id:'coast', theme:'coast', name:{zh:'海岸落日',en:'Sunset Coast'}, desc:{zh:'海滨长直道、绕岛分叉、弯心路锥、可选跳台',en:'A long beach straight, an island fork, apex cones, optional jumps'},
+  roadW:2400, lanes:4, scale:1.25, seed:23, ramps:2,
   secs:[[0,50,0,0,0],[40,120,40,2,40],[30,60,30,0,-40],[40,100,40,-2.5,0],{fork:170,c:-1,h:20},[30,90,30,3,-20],[30,40,30,0,50],[30,40,30,0,-50],[40,140,40,1.5,0],
         [25,60,25,-3.5,30],[0,200,0,0,-30],[30,80,30,4,0],[40,100,40,-2,0],[30,120,30,3,0]]},
  {id:'ridge', theme:'ridge', name:{zh:'雨夜山路',en:'Rain Ridge'}, desc:{zh:'窄路发卡弯、长下坡、新旧路分叉',en:'Narrow hairpins, a long descent, an old-road fork'},
-  roadW:1850, lanes:2, scale:1.9, seed:37, kicks:1,
+  roadW:1850, lanes:2, scale:1.9, seed:37, ramps:0,
   secs:[[0,40,0,0,0],[15,40,15,5,30],[10,20,10,-6,20],[0,40,0,0,20],[15,30,15,6,0],[15,30,15,-4,-20],[0,60,0,0,-30],[20,50,20,5,0],[10,25,10,-5,10],[10,25,10,5,10],[10,25,10,-5,0],
         [0,105,0,0,-50],[20,60,20,3,0],[15,35,15,-6,30],{fork:100,c:0,h:15},[20,40,20,4,-20],[15,30,15,-3,0],[20,60,20,5,0],[0,60,0,0,0]]},
- {id:'tundra', theme:'tundra', name:{zh:'极光冰原',en:'Aurora Tundra'}, desc:{zh:'连绵长弯、冰面打滑、绕冰湖分叉、极光夜空',en:'Flowing drift bends, slick ice, a fork around a frozen lake, aurora skies'},
-  roadW:2300, lanes:3, scale:1.66, seed:53, kicks:3,
+ {id:'tundra', theme:'tundra', name:{zh:'极光冰原',en:'Aurora Tundra'}, desc:{zh:'连绵长弯、冰面打滑、冰湖分叉、可选跳台',en:'Flowing drift bends, slick ice, a frozen-lake fork, optional jumps'},
+  roadW:2300, lanes:3, scale:1.66, seed:53, ramps:3,
   secs:[[0,40,0,0,0],[40,120,40,2.5,20],[30,60,30,-3,-20],[0,140,0,0,0],[35,90,35,3.5,30],{fork:160,c:-.8,h:-30},[30,70,30,4,0],[20,40,20,-4.5,20],[0,100,0,0,-20],
         [40,150,40,2.2,0],[25,50,25,3,10],[0,60,0,0,-10]]},
  {id:'foundry', theme:'foundry', name:{zh:'熔岩铸城',en:'Magma Foundry'}, desc:{zh:'飞跃大坡、三连急弯、熔岩河道、穿厂分叉',en:'Huge jumps, triple chicanes, lava rivers, a fork through the plant'},
-  roadW:2000, lanes:3, scale:1.65, seed:71, kicks:1, crestKicks:true,
+  roadW:2000, lanes:3, scale:1.65, seed:71, ramps:0, crestKicks:true,
   secs:[[0,40,0,0,0],[20,30,20,0,50],[20,30,20,0,-50],[12,20,12,5,0],[12,20,12,-5,0],[0,80,0,0,0],[20,60,20,6,0],[25,25,25,0,60],[25,25,25,0,-60],{fork:140,c:.5,h:0},
         [10,20,10,-5.5,0],[10,20,10,5.5,0],[10,20,10,-5.5,0],[0,120,0,0,20],[30,80,30,3.5,-20],[20,30,20,0,40],[20,30,20,0,-40],[25,50,25,4,0],[0,50,0,0,0]]}
 ];
@@ -617,6 +617,9 @@ function buildSprites(){
   defSprite('jumpSign',200,230,800,0,(g,w,h)=>{ g.fillStyle='#1c1530'; g.fillRect(w/2-6,120,12,110); g.fillStyle='#ffd23a'; pth(g,[w/2,6,w-8,118,8,118]); g.fill();
     g.fillStyle='#14081e'; pth(g,[w/2,26,w-30,108,30,108]); g.fill(); g.fillStyle='#ffd23a'; pth(g,[48,96,128,96,128,66]); g.fill(); g.beginPath(); g.arc(138,52,9,0,7); g.fill();
     g.strokeStyle='#ffd23a'; g.lineWidth=4; g.beginPath(); g.moveTo(70,62); g.quadraticCurveTo(104,30,140,40); g.stroke(); });
+  defSprite('kicker',300,120,1300,0,(g,w,h)=>{ g.fillStyle='#120a1c'; pth(g,[0,h,w,h,w-24,8,24,8]); g.fill();
+    g.save(); pth(g,[10,h-4,w-10,h-4,w-30,14,30,14]); g.clip(); for(let k=-6;k<16;k++){ g.fillStyle=k%2?'#ffd23a':'#1a1020'; g.beginPath(); g.moveTo(k*28,h); g.lineTo(k*28+28,h); g.lineTo(k*28+68,0); g.lineTo(k*28+40,0); g.fill(); } g.restore();
+    g.shadowColor='#2ef2ff'; g.shadowBlur=14; g.fillStyle='#2ef2ff'; g.fillRect(24,6,w-48,5); g.shadowBlur=0; });
   defSprite('forkSign',220,240,1100,0,(g,w,h)=>{ g.fillStyle='#1c1530'; g.fillRect(w/2-6,130,12,110); g.fillStyle='#0c0820'; rr(g,10,10,w-20,124,12); g.fill();
     g.shadowColor='#ffe066'; g.shadowBlur=16; g.strokeStyle='#ffe066'; g.lineWidth=5; rr(g,10,10,w-20,124,12); g.stroke(); g.lineWidth=12; g.lineCap='round'; g.lineJoin='round';
     g.beginPath(); g.moveTo(w/2,110); g.lineTo(w/2,74); g.lineTo(w/2-52,34); g.moveTo(w/2,74); g.lineTo(w/2+52,34); g.moveTo(w/2-68,52); g.lineTo(w/2-52,30); g.lineTo(w/2-28,34); g.moveTo(w/2+68,52); g.lineTo(w/2+52,30); g.lineTo(w/2+28,34); g.stroke(); g.shadowBlur=0; });
@@ -716,7 +719,7 @@ const trackCache={};
 function getTrack(i){ return trackCache[i]||(trackCache[i]=buildTrack(TRACKS[i])); }
 function buildTrack(def){
   const segs=[]; let y=0;
-  const add=(curve,ny)=>{ const n=segs.length; segs.push({i:n,curve,y1:y,y2:ny,sprites:[],obs:[],surf:[],items:[],glow:0,u:0,u1:0,u2:0,fork:-1,color:Math.floor(n/RUMBLE)%2,p1:pt(),p2:pt(),clip:0,vis:false,fogI:0,cars:[]}); y=ny; };
+  const add=(curve,ny)=>{ const n=segs.length; segs.push({i:n,curve,y1:y,y2:ny,sprites:[],obs:[],surf:[],items:[],kick:[],glow:0,u:0,u1:0,u2:0,fork:-1,color:Math.floor(n/RUMBLE)%2,p1:pt(),p2:pt(),clip:0,vis:false,fogI:0,cars:[]}); y=ny; };
   const forks=[];
   for(const s0 of def.secs){ const isLoop=!!(s0&&s0.loop), s=isLoop?s0.loop:s0, segStart=segs.length;
     if(!Array.isArray(s)){ const k=def.scale, n=Math.round(s.fork*k), r=Math.max(14,Math.round(n*.34)), ce=Math.min(r,20), c=s.c||0, sy=y, ey=sy+(s.h||0)*SEG, f0=segs.length;
@@ -734,9 +737,6 @@ function buildTrack(def){
   const kicks=[], kr=rng(def.seed*41+9);
   const addKick=(i0,H,Rn,lip)=>{ if(i0<200||i0+Rn+90>N-60) return false; if(!lip&&segs[i0+Rn+90].y2<segs[i0+Rn].y2-2200) return false; /* no plain ramp right before a big descent */ for(let j=0;j<Rn;j++){ const sg=segs[i0+j]; sg.y1+=H*Math.pow(j/Rn,1.3); sg.y2+=H*Math.pow((j+1)/Rn,1.3); sg.ramp=1; }
     segs[i0+Rn].y1+=H; segs[i0+Rn].y2+=H*.35; segs[i0+Rn+1].y1+=H*.35; kicks.push({i:i0,lip:!!lip}); return true; };
-  { let run=0; const want=def.kicks==null?2:def.kicks; let placed=0;
-    for(let i=0;i<N&&placed<want;i++){ const sg=segs[i]; run=(Math.abs(sg.curve)<.25&&sg.fork<0&&Math.abs(sg.y2-sg.y1)<110)?run+1:0;
-      if(run===80&&i>260+placed*(N/(want+1))*.6){ if(addKick(i-70,700,9,false)) placed++; run=0; } } }
   if(def.crestKicks){ for(let i=120;i<N-160;i++){ const a=segs[i]; if(a.y2-a.y1>0&&segs[i+1].y2-segs[i+1].y1<=0&&a.y2-segs[i-90].y1>4500&&!kicks.some(k=>Math.abs(k.i-i)<120)) addKick(i-6,340,6,true); } }
   segs.forEach((s,i)=>{ s.y1-=endY*i/N; s.y2-=endY*(i+1)/N; s.p1.wy=s.y1; s.p2.wy=s.y2; s.p1.z=i*SEG; s.p2.z=(i+1)*SEG; });
   const tr={def,segs,len:N*SEG,theme:THEME[def.theme],forks,kicks};
@@ -808,6 +808,15 @@ function placeObstacles(tr){
   // split the lap into straights (S) and sustained corners (C)
   const cMin=th==='coast'?1.8:2.5, kind=c=>Math.abs(c)<.3?'S':Math.abs(c)>=cMin?(c>0?'R':'L'):'M';
   const runs=[]; for(let j=0;j<N;){ const k0=kind(S[j].curve); let k=j; while(k<N&&kind(S[k].curve)===k0) k++; runs.push({k:k0,a:j,n:k-j}); j=k; }
+  // optional jump ramps: one outer lane only, so every driver chooses whether to take it
+  { const want=def.ramps||0; const cand=runs.filter(u=>u.k==='S'&&u.n>=85&&u.a>START+40&&u.a+u.n<END-40&&S[u.a].fork<0); let placed=0;
+    const step=Math.max(1,Math.floor(cand.length/Math.max(1,want)));
+    for(let ci=0;ci<cand.length&&placed<want;ci+=step){ const u=cand[ci], i=u.a+22; if(!free(i-12,i+80)) continue;
+      const side=r()<.5?-1:1, x=lanesX[side<0?0:def.lanes-1]*.96, hw=Math.min(.3,.95/def.lanes);
+      for(let j=8;j>=1;j--) S[mod(i-j,N)].surf.push({k:'ramp',x,hw});
+      S[mod(i,N)].kick.push({x,hw}); mark(i-14,i+95);
+      const si=mod(i-28,N); S[si].sprites.push({t:'jumpSign',x:side*1.32,s:1,c:0,cx:0,cw:0});
+      placed++; } }
   // gate spacing: the distance needed to switch from one open lane to the next at full speed, plus margin
   const gap=th==='ridge'?46:th==='coast'?60:56;
   for(const u of runs){ if(u.a<START||u.a+u.n>END) continue; if(S[u.a].fork>=0||S[u.a+u.n-1].fork>=0) continue;
@@ -857,9 +866,9 @@ const G={state:'boot',paused:false,mode:store.get('mode','race'),trackI:store.ge
   aiN:clamp(store.get('aiN',7)|0,0,7),track:null,cars:[],player:null,ghost:null,raceT:0,countT:0,time:0,camX:0,bgOff:0,shake:0,flash:0,nextFlash:6,finishOrder:[],resT:-1,rec:null,
   attractT:0,attractI:0,manual:false,lastBeep:4,q:1};
 G.trackI=clamp(G.trackI|0,0,TRACKS.length-1); G.carI=clamp(G.carI|0,0,2); G.diff=clamp(G.diff|0,0,2); if(G.mode!=='race'&&G.mode!=='tt') G.mode='race';
-const best=store.get('best6',{});
+const best=store.get('best7',{});
 const ghosts={};
-function loadGhost(tid){ if(ghosts[tid]) return ghosts[tid]; const g=store.get('ghost6_'+tid,null); if(g&&g.d&&g.x&&g.d.length===g.x.length&&g.d.length>4&&isFinite(g.t)) ghosts[tid]=g; return ghosts[tid]||null; }
+function loadGhost(tid){ if(ghosts[tid]) return ghosts[tid]; const g=store.get('ghost7_'+tid,null); if(g&&g.d&&g.x&&g.d.length===g.x.length&&g.d.length>4&&isFinite(g.t)) ghosts[tid]=g; return ghosts[tid]||null; }
 
 function makeCar(model,o){
   return {name:o.name,st:model,model:model.model,color:o.color,frames:carFrames(model.model,o.color,o.light||model.light),dist:o.dist||0,z:0,x:o.x||0,speed:o.speed||0,steer:0,
@@ -950,7 +959,9 @@ function stepCar(c,inp,dt){
     if(grounded) for(const o of sg.surf){ if(Math.abs(c.x-o.x)<o.hw+hc*.5){
       if(o.k==='pad'||o.k==='vent'){ if(c.padCool<=0){ c.boostT=Math.max(c.boostT,1.1); c.nitro=Math.min(100,c.nitro+6); c.padCool=.4; fx(c,'pad'); } }
       else if(o.k==='puddle'||o.k==='ice'){ if(c.wetT<=0) fx(c,o.k==='ice'?'ice':'splash'); if(!light) c.wetT=o.k==='ice'?1.0:.7; else if(o.k==='ice') c.wetT=Math.max(c.wetT,.25); }
+      else if(o.k==='ramp'){}
       else { if(c.slowT<=0) fx(c,'sand'); if(!light) c.slowT=.35; } } }
+    if(grounded) for(const k of sg.kick){ if(Math.abs(c.x-k.x)<k.hw+hc*.3&&c.speed>BASE*.3&&!c.inAir){ c.vy=Math.max(c.vy||0,c.speed*.55); c.yc=roadYAt(c.z)+6; c.rampJump=true; if(c.drift) endDrift(c,true); fx(c,'launch'); } }
     for(const it of sg.items){ if(c.airH<400&&!c.got.has(it.id)&&Math.abs(c.x-it.x)<hc+.13){ c.got.add(it.id); c.cans++; c.nitro=Math.min(100,c.nitro+25); fx(c,'can'); } }
     if(grounded&&Math.abs(c.x)>edgeOf(sg.u)-.05&&c.obsCool<=0) for(const sp2 of sg.sprites){ if(sp2.c&&Math.abs(c.x-sp2.cx)<hc+sp2.cw/roadW){
       c.speed=Math.min(c.speed,BASE*(light?.3:.18)); const gap=hc+sp2.cw/roadW+.02; c.x=sp2.cx>0?Math.min(c.x,sp2.cx-gap):Math.max(c.x,sp2.cx+gap); c.obsCool=.4; c.hitT=.4; c.hits++; endDrift(c,false); fx(c,'hit',2); break; } }
@@ -989,8 +1000,9 @@ function airStep(c,dt){
 function land(c,impact){
   const hard=impact>7000, mid=impact>3000, light=c.st.passive==='light';
   if(hard) c.speed*=light?.985:.95; else if(mid) c.speed*=light?.995:.985;
-  if(c.airT>.45){ c.nitro=Math.min(100,c.nitro+Math.min(15,c.airT*12)); }
-  fx(c,'land',{hard,mid,air:c.airT});
+  const ramp=!!c.rampJump; c.rampJump=false;
+  if(ramp) c.nitro=Math.min(100,c.nitro+20); else if(c.airT>.45) c.nitro=Math.min(100,c.nitro+Math.min(15,c.airT*12));
+  fx(c,'land',{hard,mid,air:c.airT,ramp});
 }
 function respawn(c){ c.wreckT=0; c.yc=null; c.ghostT=GHOST_T; c.speed=BASE*.35; const sg=segOf(c.z); c.x=sg.u>0?(c.branch||1)*(medOf(sg.u)+hbOf(sg.u)):clamp(c.lane||0,-.7,.7); c.steer=0; c.obsCool=.5; }
 function resolveCars(){
@@ -1062,7 +1074,7 @@ function aiControl(c){
   for(let k=1;k<64&&wallK<0;k++){ const sg=S[(i0+k)%N]; if(sg.obs.length){ wallK=k; wall=sg.obs; } }
   if(wallK<0||wallK>26){
     for(let k=1;k<40;k++){ const sg=S[(i0+k)%N];
-      for(const o of sg.surf){ if(o.k==='pad'||o.k==='vent'){ if(c.usePads&&k<28) tx=o.x; } else { const clr=o.hw+hc*.5+.05; if(Math.abs(tx-o.x)<clr){ const l=o.x-clr, r=o.x+clr; tx=(l<-.9)?r:(r>.9)?l:(Math.abs(l-c.x)<Math.abs(r-c.x)?l:r); } } }
+      for(const o of sg.surf){ if(o.k==='pad'||o.k==='vent'||o.k==='ramp'){ if(c.usePads&&k<30) tx=o.x; } else { const clr=o.hw+hc*.5+.05; if(Math.abs(tx-o.x)<clr){ const l=o.x-clr, r=o.x+clr; tx=(l<-.9)?r:(r>.9)?l:(Math.abs(l-c.x)<Math.abs(r-c.x)?l:r); } } }
       if(c.usePads&&k<36) for(const it of sg.items) if(!c.got.has(it.id)) tx=it.x;
     } }
   const wkey=wall?(i0+wallK)%N:-1;
@@ -1108,8 +1120,8 @@ function onPlayerLap(lt,li){
   const p=G.player, tid=G.track.def.id; const b=best[tid]||(best[tid]={});
   const rec=G.rec; let isBest=false;
   if(rec&&rec.d.length>10&&(!b.lap||lt<b.lap)){ isBest=!!b.lap; b.lap=lt; G.newLapRec=true;
-    const gh={t:lt,car:G.carI,dt:.05,d:rec.d.slice(),x:rec.x.slice()}; ghosts[tid]=gh; store.set('ghost6_'+tid,gh); store.set('best6',best); }
-  else if(!b.lap||lt<b.lap){ b.lap=lt; store.set('best6',best); }
+    const gh={t:lt,car:G.carI,dt:.05,d:rec.d.slice(),x:rec.x.slice()}; ghosts[tid]=gh; store.set('ghost7_'+tid,gh); store.set('best7',best); }
+  else if(!b.lap||lt<b.lap){ b.lap=lt; store.set('best7',best); }
   G.rec={d:[],x:[],lap:li};
   if(li<LAPS){ FX.event('lap',li); if(isBest) setTimeout(()=>centerMsg(t('newBest'),1600,true),900); if(li===LAPS-1) centerMsg(t('lastLap'),1800,true); }
 }
@@ -1122,7 +1134,7 @@ function onPlayerFinish(){
   let rec=false;
   if(G.mode==='race'){ const k='race'+G.diff; if(!b[k]||total<b[k]){ rec=!!b[k]||true; b[k]=total; } }
   else if(G.mode==='tt'){ if(!b.tt||total<b.tt){ rec=true; b.tt=total; } }
-  store.set('best6',best);
+  store.set('best7',best);
   G.result={pos,total,best:bl,laps:p.laps.slice(),rec:rec||G.newLapRec,stand:ord.map(c=>({name:c.name,me:c===p,t:c.finished?c.finishT:null})),mode:G.mode};
   if(G.mode==='race') G.needFF=true;
   FX.event('finish',pos);
@@ -1259,6 +1271,7 @@ function render(){
       for(const o of seg.surf){ const a1=x1+w1*(o.x-o.hw),b1=x1+w1*(o.x+o.hw),a2=x2+w2*(o.x-o.hw),b2=x2+w2*(o.x+o.hw);
         if(o.k==='pad'){ poly(a1,y1,b1,y1,b2,y2,a2,y2,seg.i%2?'rgba(46,242,255,.85)':'rgba(155,92,255,.8)'); }
         else if(o.k==='vent'){ poly(a1,y1,b1,y1,b2,y2,a2,y2,seg.i%2?'rgba(255,150,40,.9)':'rgba(255,63,120,.85)'); }
+        else if(o.k==='ramp'){ poly(a1,y1,b1,y1,b2,y2,a2,y2,seg.i%2?'#ffd23a':'#24162e'); }
         else if(o.k==='ice'){ ctx.globalAlpha=.7; poly(a1,y1,b1,y1,b2,y2,a2,y2,seg.i%2?'#d8f6ff':'#bfeeff'); ctx.globalAlpha=1; }
         else if(o.k==='puddle'){ ctx.globalAlpha=.55; poly(a1,y1,b1,y1,b2,y2,a2,y2,'#4a5f9a'); ctx.globalAlpha=1; }
         else { poly(a1,y1,b1,y1,b2,y2,a2,y2,'#e8c08c'); } }
@@ -1271,6 +1284,7 @@ function render(){
     const sc=p1.scale;
     for(const sp of seg.sprites){ const d=SPR[sp.t], w=d.w*sp.s*sc*ff, img=d.img; const X=p1.sx+sc*sp.x*roadW*ff; drawSprite(img,X,p1.sy,w,w*img.height/img.width,sp.x===0?-.5:sp.x<0?-1:0,-1,seg.clip); }
     for(const o of seg.obs){ const d=SPR[o.k], w=o.ww*sc*ff, img=d.img; drawSprite(img,p1.sx+sc*o.x*roadW*ff,p1.sy,w,w*img.height/img.width,-.5,-1,seg.clip); }
+    for(const k of seg.kick){ const img=SPR.kicker.img, w=k.hw*2*roadW*sc*ff; drawSprite(img,p1.sx+sc*k.x*roadW*ff,p1.sy,w,w*img.height/img.width,-.5,-1,seg.clip); }
     if(seg.items.length){ const img=SPR.can.img; for(const it of seg.items){ if(P.got.has(it.id)) continue; const w=SPR.can.w*sc*ff, bob=Math.sin(G.time*4+it.id)*w*.12-w*.15;
       drawSprite(img,p1.sx+sc*it.x*roadW*ff,p1.sy+bob,w,w*img.height/img.width,-.5,-1,seg.clip); } }
     const bl=buckets[n];
@@ -1357,7 +1371,8 @@ const FX={parts:[],rain:[],lines:[],ax:0,ay:0,aw:100,ah:50,
       case 'sand': AU.sand(); this.emit(14,{x:this.ax,y:this.ay-6,sx:this.aw,vy:-180,jx:300,jy:120,life:.5,size:4,col:'rgba(240,200,140,.8)',kind:0}); break;
       case 'driftStart': AU.driftStart(); break;
       case 'land': if(a.hard||a.mid){ G.shake=Math.max(G.shake,a.hard?.7:.35); AU.land(a.hard?1:.55); this.emit(a.hard?22:10,{x:this.ax,y:this.ay-4,sx:this.aw*.9,vy:-140,jx:500,jy:160,life:.45,size:2.6,col:'#ffd27a',kind:1}); vibrate(a.hard?45:20); }
-        if(a.air>.45) centerMsg(t('airtime',{s:a.air.toFixed(1)}),900,true); break;
+        if(a.ramp) centerMsg(t('rampJump'),1000,true); else if(a.air>.45) centerMsg(t('airtime',{s:a.air.toFixed(1)}),900,true); break;
+      case 'launch': AU.pad(); break;
       case 'can': AU.can(); centerMsg('+25 N₂O',650,true); break;
       case 'driftBoost': AU.pad(); centerMsg(t('driftBoost')+(a===2?' ++':' +'),700,true); break;
       case 'lap': AU.lap(); break;
